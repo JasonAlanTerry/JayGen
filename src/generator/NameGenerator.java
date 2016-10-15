@@ -8,11 +8,6 @@ import java.util.List;
 
 import game.Actor;
 
-/**
- * Dictionary of adjectives and nouns.
- *
- * @author Kohsuke Kawaguchi
- */
 public class NameGenerator {
 	
     private List<String> givenNamesMale = new ArrayList<String>();
@@ -28,17 +23,16 @@ public class NameGenerator {
             load("family_name.txt", surNames);
         } catch (IOException e) {
             throw new Error(e);
-        }        
+        }
+        System.out.println("Name lists loaded...");
     }
 
-    /**
-     * Sufficiently big prime that's bigger than {@link #size()}
-     */
+
      public void name(Actor actor) {
     	 
-    	int m = dice.roll(givenNamesMale.size());
-        int f = dice.roll(givenNamesFemale.size());
-        int s = dice.roll(surNames.size());
+    	int m = dice.roll((givenNamesMale.size() - 1));
+        int f = dice.roll((givenNamesFemale.size() - 1));
+        int s = dice.roll((surNames.size() - 1));
         
         String first = null, last = null;
         
@@ -55,8 +49,7 @@ public class NameGenerator {
         System.out.println(first);
         actor.setForeName(first);
         System.out.println(last);
-        actor.setClanName(last);       
-        
+        actor.setClanName(last);              
     }
 
     private void load(String name, List<String> col) throws IOException {

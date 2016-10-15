@@ -1,13 +1,19 @@
 package generator;
 
 import game.Actor;
+
+
 import generator.NameGenerator;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+
 // contains all the methods for Generating a character object
 public class ActorFactory {
 	
+	//public static Logger facLog = Logger.getLogger(ActorFactory.class);
+	
+	// Date setters for old logging system...
 	SimpleDateFormat year = new SimpleDateFormat("yyy");
 	SimpleDateFormat month = new SimpleDateFormat("MM");
 	SimpleDateFormat day = new SimpleDateFormat("dd");
@@ -35,27 +41,30 @@ public class ActorFactory {
 	// Returns the newly created actor for the database
 	public static void birthActor(Actor newborn) {
 		
-		factoryLog(newborn, "birthing...");		
-				
-		// get run / hall combo
-		// set base stats randomly selecting birth ranking
-		// 1-3 1 = Thrall-born, 2 = Karl-born, 3 = Jarl-born
+		factoryLog(newborn, "birthing...");
+		
+		// roll 1d100 to factor precentage chance of actor having a certain birthrite, ca, and gender.
 		int r = factRoller.roll(100);
 		
+		// Setting Birthrite
+		// Setting CA
 		if (r > 70) {
 			newborn.setBirthrite(3);
+			newborn.setComapp(2);
 			// Jarl spread
-		} else if (r > 50) {
+		} else if (r > 20) {
 			newborn.setBirthrite(2);
+			newborn.setComapp(4);
 			// Karl spread
 		} else if (r > 1) {
 			newborn.setBirthrite(1);
+			newborn.setComapp(6);
 			// Thrall Spread
 		} else {
 			// Error catching?
 		}
 		
-		if (r < 50) {
+		if (r < 65) {
 			newborn.setGender(1);
 		} else {
 			newborn.setGender(2);
@@ -64,16 +73,34 @@ public class ActorFactory {
 		// get rand foreName
 		nameGen.name(newborn);
 		
-		// get rand clanName
-		// set name
-		// roll for birth
+		newborn.setAge(factRoller.roll(62));
+		
+		factoryLog(newborn, ("Init age set to " + newborn.getAge()));
+		
+		// Init the newborns stats at birth
+		distributeGrowth(newborn, (newborn.getBirthrite() + 5));
 		// set ca
 		// generate / set uaid
 		int id = factRoller.roll(1000);
 		newborn.setUaid(id);
-		factoryLog(newborn, "done with birthing.");		
+		factoryLog(newborn, "done with birthing of" + newborn.getUaid());
+		newborn.update();
+		System.out.println("[----------------------------------------------------------------]");
+		System.out.print("| " + newborn.getForeName());
+		System.out.print(" " + newborn.getClanName());
+		if (newborn.getGender() == 1) {
+			System.out.print("[Male]");
+		}
+		if (newborn.getGender() == 2) {
+			System.out.print("[Female]");
+		}
+		System.out.print(" Age:" + newborn.getAge());
+		System.out.print(" - " + newborn.getUaid());
+		System.out.print(" - " + newborn.getBirthriteString());
+		System.out.print(" - " + newborn.getStatSpread());
+		System.out.println(" | ");
+		System.out.println("[----------------------------------------------------------------]");
 	}
-	
 	// Each growth tier controls the amount of growth for that tier,
 	// child = 5, youth = 20, seasoned = 10, veteran = 5, elder = 1
 	// The perform growth function takes the current Actor, and checks it's
@@ -84,165 +111,85 @@ public class ActorFactory {
 	public void preformGrowth(Actor actor) {
 		// Get age for calc
 		int aAge = actor.getAge();
-		int bType = actor.getBirthrite();
 		
-		// Pass age to switch | TODO Make this a switch?
-		for (int i = 0; i < aAge; i++) {
-			if (aAge < 12) {
-				rollChildGrowth(actor, bType);
-			} else if (aAge < 17) {
-				rollYouthGrowth(actor);
-			} else if (aAge < 32) {
-				rollSeasonedGrowth(actor);
-			} else if (aAge < 50) {
-				rollVeteranGrowth(actor);
-			} else if (aAge < 62) {
-				rollElderGrowth(actor);
+		factoryLog(actor, "Start Growth");
+		
+		
+		for (int i = 1; i <= aAge; i++) {
+			factoryLog(actor, ("|Growth year " + i + "|"));
+			if (i < 12) {
+				factoryLog(actor, "Growing as child");
+				distributeGrowth(actor, 5);
+				actor.incCurrentGrowth();
+			} else if (i < 19) {
+				factoryLog(actor, "Growing as youth");
+				distributeGrowth(actor, 15);
+				actor.incCurrentGrowth();
+			} else if (i < 32) {
+				factoryLog(actor, "Growing as seasoned");
+				distributeGrowth(actor, 10);
+				actor.incCurrentGrowth();
+			} else if (i < 50) {
+				factoryLog(actor, "Growing as veteran");
+				distributeGrowth(actor, 5);
+				actor.incCurrentGrowth();
+			} else if (i <= 62) {
+				factoryLog(actor, "Growing as elder");
+				distributeGrowth(actor, 1);
+				actor.incCurrentGrowth();
 			} else {
 				// error?
 			}		
-		}			
+		}
+		
+		System.out.println(" Total years growth accrued = " + actor.getCurrentGrowth() + " years.");
+		
+		
+		
 	}
-		 
-	// ChildGrowth
-	private void rollChildGrowth(Actor actor, int birthVar) {
-		for (int i = 0; i < (5 + birthVar); i++) {
+	
+	private static void distributeGrowth(Actor actor, int totalGrowth) {
+		int[] growthTracker = new int[5];
+		
+		for (int i = 0; i < totalGrowth; i++) {
 			
 			int r = factRoller.roll(5); // Roll 1d5
-
-        	if (r == 1) {
-				actor.incTotalDis(1);
-				// set Dis
-			} else if (r == 2) {
-				actor.incTotalSta(1);
-				// Set Sta
-			} else if (r == 3) {
-				actor.incTotalAgi(1);
-				// Set Agi
-			} else if (r == 4) {
-				actor.incTotalAgg(1);
-				// Set Agg
+			
+			if (r == 1) {			
+				actor.incRawDis(1);
+				growthTracker[0]++;
+			} else if (r == 2) {			
+				actor.incRawSta(factRoller.roll(2));
+				growthTracker[1]++;
+			} else if (r == 3) {			
+				actor.incRawAgi(1);
+				growthTracker[2]++;
+			} else if (r == 4) {			
+				actor.incRawAgg(1);
+				growthTracker[3]++;
 			} else if (r == 5) {
-				actor.incTotalRes(1);
-				// Set Res
+			    actor.incRawRes(1);
+			    growthTracker[4]++;
 			} else {
 				// error?
 			} // end if
 		} // end for
-	}
-	
-	// YouthGrowth
-	private void rollYouthGrowth(Actor actor) {
-		for (int i = 0; i < 15; i++) {
-			
-			int r = factRoller.roll(5); // Roll 1d5
-
-        	if (r == 1) {
-				actor.incTotalDis(1);
-				// set Dis
-			} else if (r == 2) {
-				actor.incTotalSta(1);
-				// Set Sta
-			} else if (r == 3) {
-				actor.incTotalAgi(1);
-				// Set Agi
-			} else if (r == 4) {
-				actor.incTotalAgg(1);
-				// Set Agg
-			} else if (r == 5) {
-				actor.incTotalRes(1);
-				// Set Res
-			} else {
-				// error?
-			}
-		}
-	}
-	// SeasonedGrowth
-	private void rollSeasonedGrowth(Actor actor) {
-		for (int i = 0; i < 10; i++) {
-			
-			int r = factRoller.roll(5); // Roll 1d5
-
-        	if (r == 1) {
-				actor.incTotalDis(1);
-				// set Dis
-			} else if (r == 2) {
-				actor.incTotalSta(1);
-				// Set Sta
-			} else if (r == 3) {
-				actor.incTotalAgi(1);
-				// Set Agi
-			} else if (r == 4) {
-				actor.incTotalAgg(1);
-				// Set Agg
-			} else if (r == 5) {
-				actor.incTotalRes(1);
-				// Set Res
-			} else {
-				// error?
-			}
-		}
-	}
-	
-	// VeteranGrowth
-	private void rollVeteranGrowth(Actor actor) {
-		for (int i = 0; i < 5; i++) {
-			
-			int r = factRoller.roll(5); // Roll 1d5
-
-        	if (r == 1) {
-				actor.incTotalDis(1);
-				// set Dis
-			} else if (r == 2) {
-				actor.incTotalSta(1);
-				// Set Sta
-			} else if (r == 3) {
-				actor.incTotalAgi(1);
-				// Set Agi
-			} else if (r == 4) {
-				actor.incTotalAgg(1);
-				// Set Agg
-			} else if (r == 5) {
-				actor.incTotalRes(1);
-				// Set Res
-			} else {
-				// error?
-			}
-		}
-	}
-	
-	// ElderGrowth
-	private void rollElderGrowth(Actor actor) {
-
-		int r = factRoller.roll(5); // Roll 1d5
-			
-		if (r == 1) {
-			actor.incTotalDis(1);
-			// set Dis
-		} else if (r == 2) {
-			actor.incTotalSta(1);
-			// Set Sta
-		} else if (r == 3) {
-			actor.incTotalAgi(1);
-			// Set Agi
-		} else if (r == 4) {
-			actor.incTotalAgg(1);
-			// Set Agg
-		} else if (r == 5) {
-			actor.incTotalRes(1);
-			// Set Res
-		} else {
-			// error?
-		}
+		
+		
+		System.out.println("[ Total Dis Growth: " + growthTracker[0] + " | Total Sta Growth: " + growthTracker[1]  + " | Total Agi Growth: " + growthTracker[2]
+				 + " | Total Agg Growth: " + growthTracker[3]  + " | Total Res Growth: " + growthTracker[4] + " ]" + "[ TOTAL: " + totalGrowth + " ]");
+		
+		
 	}
 	
 	private void saveActor() {
 		// build XML
 	}
 	
-	private static void factoryLog(Actor actor, String msg) {
+	public static void factoryLog(Actor actor, String msg) {
 		String timeStamp = new SimpleDateFormat("HH.mm.ss").format(new Date());
-		System.out.println("[" + timeStamp + "]" + actor.getUaid() + " : " + msg + "." );
+		String outputMsg = "[" + timeStamp + "]" + actor.getUaid() + " : " + msg + ".";
+		//facLog.debug(outputMsg);
 	}
 
 }

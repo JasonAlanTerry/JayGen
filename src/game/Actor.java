@@ -9,28 +9,33 @@ public class Actor {
 	// Data such as that should be stored in the database for that play through
 	
 	// traits of an actor
-	private int uaid; // ID in database? 
-	private int comapp;
-	private int birthDay;
-	private int birthMonth;
-	private int birthYear;
-	private int age;
-	private int gender; // Can be 0 or 1
-	private int totalMor;
-	private int totalDis;
-	private int totalSta;
-	private int totalAgi;
-	private int totalAgg;
-	private int totalRes;
+	private int uaid = 0; // ID in database? 
+	private int comapp = 0;
+	private int birthDay = 0;
+	private int birthMonth = 0;
+	private int birthYear = 0;
+	private int currentGrowth= 0; // Tracks if they have grown to their respect age or not.
+	private int age = 0;
+	private int gender = 0; // Can be 0 or 1
+	// Derived Stats
+	private int totalMor = 0;
 	// private int numTempWounds;
 	// private int numPermWounds;
-	private String foreName;
-	private String nickName;
-	private String clanName;
+	// Non-Derived Stats
+	private int rawDis = 0;
+	private int rawSta = 0;
+	private int rawAgi = 0;
+	private int rawAgg = 0;
+	private int rawRes = 0;
+	// private int numTempWounds;
+	// private int numPermWounds;
+	private String foreName = "_ERROR_";
+	private String nickName = "_ERROR_";
+	private String clanName = "_ERROR_";
 	
 	// Display variables, things that may commonly be displayed to the user??
-	private int visablePower;
-	private int birthRite;
+	private int visablePower = 0;
+	private int birthRite = 0;
 	
 	// TODO constructor
 	public Actor(){
@@ -127,6 +132,16 @@ public class Actor {
 	public void setAge(int age) {
 		this.age = age;
 	}
+	
+	public int getCurrentGrowth() {
+		return currentGrowth;
+	}
+
+
+	public void incCurrentGrowth() {
+		this.currentGrowth++;
+	}
+	
 
 	// Getter / Setter for gender
 	public int getGender() {
@@ -149,73 +164,73 @@ public class Actor {
 	}
 	
 	public void decTotalMor(int x) {
-		this.totalMor -= x;
+		this.totalMor =- x;
 	}
 
 	// Getter and Inc / Dec total Disc
-	public int getTotalDis() {
-		return totalDis;
+	public int getRawDis() {
+		return rawDis;
 	}
 	
-	public void incTotalDis(int x) {
-		this.totalMor += x;
+	public void incRawDis(int x) {
+		this.rawDis += x;
 	}
 	
-	public void decTotalDis(int x) {
-		this.totalMor -= x;
+	public void decRawDis(int x) {
+		this.rawDis =- x;
 	}
 
 	// Getter and Inc / Dec total stam
-	public int getTotalSta() {
-		return totalSta;
+	public int getRawSta() {
+		return rawSta;
 	}
 
-	public void incTotalSta(int x) {
-		this.totalMor += x;
+	public void incRawSta(int x) {
+		this.rawSta += x;
 	}
 	
-	public void decTotalSta(int x) {
-		this.totalMor -= x;
+	public void decRawSta(int x) {
+		this.rawSta -= x;
 	}
 	
 	// Getter and Inc / Dec total stam
-	public int getTotalAgi() {
-		return totalAgi;
+	public int getRawAgi() {
+		return rawAgi;
 	}
 
-	public void incTotalAgi(int x) {
-		this.totalMor += x;
+	public void incRawAgi(int x) {
+		this.rawAgi += x;
 	}
 	
-	public void decTotalAgi(int x) {
-		this.totalMor -= x;
+	public void decRawAgi(int x) {
+		this.rawAgi -= x;
 	}
 
 	// Getter and Inc / Dec total aggression
-	public int getTotalAgg() {
-		return totalAgg;
+	public int getRawAgg() {
+		return rawAgg;
 	}
 
-	public void incTotalAgg(int x) {
-		this.totalMor += x;
+	public void incRawAgg(int x) {
+		this.rawAgg += x;
 	}
 	
-	public void decTotalAgg(int x) {
-		this.totalMor -= x;
+	public void decRawAgg(int x) {
+		this.rawAgg -= x;
 	}
 	
 	// Getter and Inc / Dec total res
-	public int getTotalRes() {
-		return totalRes;
+	public int getRawRes() {
+		return rawRes;
 	}
 
 
-	public void incTotalRes(int x) {
-		this.totalMor += x;
+	public void incRawRes(int x) {
+		this.rawRes += x;
 	}
 	
-	public void decTotalRes(int x) {
-		this.totalMor -= x;
+	public void decRawRes(int x) {
+		this.rawRes -= x;
 	}
 
 
@@ -234,10 +249,48 @@ public class Actor {
 		return visablePower;
 	}
 
-
-	public void setVisablePower(int visablePower) {
-		this.visablePower = visablePower; 
+ 
+	public void setVisablePower() {
+		this.visablePower = (this.rawAgg + this.rawAgi + this.rawDis + this.rawRes + this.rawSta); 
 ;
 	}
-	
+
+
+	public String getStatSpread() {
+		String spread = "[Total Power: " + this.getVisablePower() + " | Agg:" + this.getRawAgg() + " | Agi:" + this.getRawAgi() + " | Dis:" +
+						this.getRawDis() + " | Res:" + this.getRawRes() + " | Sta:" + this.getRawSta() + "]";
+		return spread;
+	}
+
+
+	public String getBirthriteString() {
+		String birthrite = "ERROR";
+		
+		if (this.birthRite == 3) {
+			birthrite = "Jarl Born";
+		}
+		
+		if (this.birthRite == 2) {
+			birthrite = "Karl Born";
+		}
+		
+		if (this.birthRite == 1) {
+			birthrite = "Thrall Born";
+		}
+		return birthrite;
+	}
+
+
+	public String GetFormattedName() {
+		String formatName = this.foreName + " " + this.clanName;
+		// TODO Auto-generated method stub
+		return formatName;
+	}
+
+
+	public void update() {
+		this.setVisablePower();		
+	}
+
+
 }
