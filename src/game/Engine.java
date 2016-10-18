@@ -26,26 +26,6 @@ public class Engine {
 		currentActors.add(actor);
 	}
 	
-	public void updateActors() {
-		
-		for (int i = 0; i < currentActors.size(); i++) {
-			System.out.println("Updating actors...");
-			Actor actor = currentActors.get(i);
-			
-			System.out.println(actor.getAge());
-			System.out.println(actor.getCurrentGrowth());
-			
-			if (actor.getAge() >  actor.getCurrentGrowth()) {
-				ActorFactory.factoryLog(actor, ("Growing... " + actor.GetFormattedName()));
-				actorFactory.preformGrowth(actor);
-			}
-			
-			actor.update();
-			
-		}
-		
-	}
-	
 	public void outputCurrentActors() {
 		System.out.println("[----------------------------------------------------------------]");
 		for (int i = 0; i < currentActors.size(); i++) {
@@ -62,6 +42,7 @@ public class Engine {
 			System.out.print(" Age:" + actor.getAge());
 			System.out.print(" - " + actor.getUaid());
 			System.out.print(" - " + actor.getBirthriteString());
+			System.out.print(" | CA: " + actor.getcombatApt());
 			System.out.print(" - " + actor.getStatSpread());
 			System.out.println(" | ");
 		}

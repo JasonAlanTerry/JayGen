@@ -43,28 +43,46 @@ public class ActorFactory {
 		
 		factoryLog(newborn, "birthing...");
 		
-		// roll 1d100 to factor precentage chance of actor having a certain birthrite, ca, and gender.
-		int r = factRoller.roll(100);
+		// roll 1d100 for all major generation steps
+		int brRand = factRoller.roll(100);
+		int caRand = factRoller.roll(100);
+		int gendRand = factRoller.roll(100);
 		
 		// Setting Birthrite
 		// Setting CA
-		if (r > 70) {
+		if (brRand > 70) { // Jarl Birth
+			
 			newborn.setBirthrite(3);
-			newborn.setComapp(2);
-			// Jarl spread
-		} else if (r > 20) {
+			if (caRand > 40) {
+				newborn.setcombatApt(2);
+			} else if (caRand > 20) { 
+				newborn.setcombatApt(4);
+			} else {
+				newborn.setcombatApt(6);
+			}
+		} else if (brRand > 20) { // Karl Birth
 			newborn.setBirthrite(2);
-			newborn.setComapp(4);
-			// Karl spread
-		} else if (r > 1) {
+			if (caRand > 60) {
+				newborn.setcombatApt(2);
+			} else if (caRand > 30) { 
+				newborn.setcombatApt(4);
+			} else {
+				newborn.setcombatApt(6);
+			}
+			
+		} else { // Thrall Birth
 			newborn.setBirthrite(1);
-			newborn.setComapp(6);
+			if (caRand > 80) {
+				newborn.setcombatApt(2);
+			} else if (caRand > 40) { 
+				newborn.setcombatApt(4);
+			} else {
+				newborn.setcombatApt(6);
+			}
 			// Thrall Spread
-		} else {
-			// Error catching?
 		}
 		
-		if (r < 65) {
+		if (gendRand < 65) {
 			newborn.setGender(1);
 		} else {
 			newborn.setGender(2);
@@ -73,33 +91,15 @@ public class ActorFactory {
 		// get rand foreName
 		nameGen.name(newborn);
 		
+		// TODO: This line is temporary for testing
 		newborn.setAge(factRoller.roll(62));
 		
 		factoryLog(newborn, ("Init age set to " + newborn.getAge()));
 		
 		// Init the newborns stats at birth
 		distributeGrowth(newborn, (newborn.getBirthrite() + 5));
-		// set ca
-		// generate / set uaid
-		int id = factRoller.roll(1000);
-		newborn.setUaid(id);
-		factoryLog(newborn, "done with birthing of" + newborn.getUaid());
-		newborn.update();
-		System.out.println("[----------------------------------------------------------------]");
-		System.out.print("| " + newborn.getForeName());
-		System.out.print(" " + newborn.getClanName());
-		if (newborn.getGender() == 1) {
-			System.out.print("[Male]");
-		}
-		if (newborn.getGender() == 2) {
-			System.out.print("[Female]");
-		}
-		System.out.print(" Age:" + newborn.getAge());
-		System.out.print(" - " + newborn.getUaid());
-		System.out.print(" - " + newborn.getBirthriteString());
-		System.out.print(" - " + newborn.getStatSpread());
-		System.out.println(" | ");
-		System.out.println("[----------------------------------------------------------------]");
+		factoryLog(newborn, "done with birthing of " + newborn.getFullName());
+
 	}
 	// Each growth tier controls the amount of growth for that tier,
 	// child = 5, youth = 20, seasoned = 10, veteran = 5, elder = 1
@@ -108,38 +108,38 @@ public class ActorFactory {
 	// This SHOULD make it able to iterate through any number of actors, and grow them appropriately.
 	// TODO: Consolidate repeat code
 	
-	public void preformGrowth(Actor actor) {
-		// Get age for calc
-		int aAge = actor.getAge();
-		
-		factoryLog(actor, "Start Growth");
+	public static void preformGrowth(Actor actor) {
+						
+		factoryLog(actor, ("|Start Growth|" + actor.getAge() + ":" + actor.getCurrentGrowth()));
 		
 		
-		for (int i = 1; i <= aAge; i++) {
-			factoryLog(actor, ("|Growth year " + i + "|"));
-			if (i < 12) {
-				factoryLog(actor, "Growing as child");
-				distributeGrowth(actor, 5);
-				actor.incCurrentGrowth();
-			} else if (i < 19) {
-				factoryLog(actor, "Growing as youth");
-				distributeGrowth(actor, 15);
-				actor.incCurrentGrowth();
-			} else if (i < 32) {
-				factoryLog(actor, "Growing as seasoned");
-				distributeGrowth(actor, 10);
-				actor.incCurrentGrowth();
-			} else if (i < 50) {
-				factoryLog(actor, "Growing as veteran");
-				distributeGrowth(actor, 5);
-				actor.incCurrentGrowth();
-			} else if (i <= 62) {
-				factoryLog(actor, "Growing as elder");
-				distributeGrowth(actor, 1);
-				actor.incCurrentGrowth();
-			} else {
+		if (actor.getAge() > actor.getCurrentGrowth()) {
+			for (int i = 1; i <= actor.getAge(); i++) {
+				factoryLog(actor, ("|Growth year " + i + "|"));
+				if (i < 12) {
+					factoryLog(actor, "Growing as child");
+					distributeGrowth(actor, 5);
+					actor.incCurrentGrowth();
+				} else if (i < 19) {
+					factoryLog(actor, "Growing as youth");
+					distributeGrowth(actor, 15);
+					actor.incCurrentGrowth();
+				} else if (i < 32) {
+					factoryLog(actor, "Growing as seasoned");
+					distributeGrowth(actor, 10);
+					actor.incCurrentGrowth();
+				} else if (i < 50) {
+					factoryLog(actor, "Growing as veteran");
+					distributeGrowth(actor, 5);
+					actor.incCurrentGrowth();
+				} else if (i <= 62) {
+					factoryLog(actor, "Growing as elder");
+					distributeGrowth(actor, 1);
+					actor.incCurrentGrowth();
+				} else {
 				// error?
-			}		
+				}		
+			}
 		}
 		
 		System.out.println(" Total years growth accrued = " + actor.getCurrentGrowth() + " years.");
@@ -176,8 +176,8 @@ public class ActorFactory {
 		} // end for
 		
 		
-		System.out.println("[ Total Dis Growth: " + growthTracker[0] + " | Total Sta Growth: " + growthTracker[1]  + " | Total Agi Growth: " + growthTracker[2]
-				 + " | Total Agg Growth: " + growthTracker[3]  + " | Total Res Growth: " + growthTracker[4] + " ]" + "[ TOTAL: " + totalGrowth + " ]");
+		System.out.println("[ Dis Growth: " + growthTracker[0] + " | Sta Growth: " + growthTracker[1]  + " | Agi Growth: " + growthTracker[2]
+				 + " | Agg Growth: " + growthTracker[3]  + " | Res Growth: " + growthTracker[4] + " ]" + "[ TOTAL: " + totalGrowth + " ]");
 		
 		
 	}
@@ -189,7 +189,7 @@ public class ActorFactory {
 	public static void factoryLog(Actor actor, String msg) {
 		String timeStamp = new SimpleDateFormat("HH.mm.ss").format(new Date());
 		String outputMsg = "[" + timeStamp + "]" + actor.getUaid() + " : " + msg + ".";
-		//facLog.debug(outputMsg);
+		// System.out.println(outputMsg);
 	}
 
 }

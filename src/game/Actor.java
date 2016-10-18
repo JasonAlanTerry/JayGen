@@ -1,5 +1,7 @@
 package game;
 
+import java.util.UUID;
+
 public class Actor {
 	
 	
@@ -9,18 +11,21 @@ public class Actor {
 	// Data such as that should be stored in the database for that play through
 	
 	// traits of an actor
-	private int uaid = 0; // ID in database? 
-	private int comapp = 0;
+	private UUID uaid = null; // ID in database? 
+	private int combatApt = 0;
+	
 	private int birthDay = 0;
 	private int birthMonth = 0;
 	private int birthYear = 0;
+	
 	private int currentGrowth= 0; // Tracks if they have grown to their respect age or not.
 	private int age = 0;
 	private int gender = 0; // Can be 0 or 1
 	// Derived Stats
 	private int totalMor = 0;
-	// private int numTempWounds;
-	// private int numPermWounds;
+	private int currentTempWounds = 0;
+	private int currentPermWounds = 0;
+	private int maxWounds = 0;
 	// Non-Derived Stats
 	private int rawDis = 0;
 	private int rawSta = 0;
@@ -42,7 +47,9 @@ public class Actor {
 		
 		// Whenever a Actor is constructed, birth it.
 		// This will set up the bare essentially info a actor will need to exist
-		generator.ActorFactory.birthActor(this);				
+		this.uaid = UUID.randomUUID();
+		generator.ActorFactory.birthActor(this);
+		this.update();
 	}
 	
 	
@@ -72,25 +79,25 @@ public class Actor {
 	public void setNickName(String nickName) {
 		this.nickName = nickName;
 	}
+	
+	public String getFullName() {
+		return (this.foreName + " " + this.clanName);
+	}
 
 	// Getter / Setter for Uaid
-	public int getUaid() {
+	public UUID getUaid() {
 		return uaid;
 	}
 
-	
-	public void setUaid(int uaid) {
-		this.uaid = uaid;
-	}
 
-	// Getter / Setter for Combat aptitude, comapp
-	public int getComapp() {
-		return comapp;
+	// Getter / Setter for Combat aptitude, combatApt
+	public int getcombatApt() {
+		return combatApt;
 	}
 
 
-	public void setComapp(int comapp) {
-		this.comapp = comapp;
+	public void setcombatApt(int combatApt) {
+		this.combatApt = combatApt;
 	}
 
 	// Getter / setter for birthday
@@ -289,6 +296,7 @@ public class Actor {
 
 
 	public void update() {
+		generator.ActorFactory.preformGrowth(this);
 		this.setVisablePower();		
 	}
 

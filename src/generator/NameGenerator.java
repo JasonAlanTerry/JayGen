@@ -18,9 +18,9 @@ public class NameGenerator {
 
     public NameGenerator() {
         try {
-            load("male_names_given.txt", givenNamesMale);
-            load("female_names_given.txt", givenNamesFemale);
-            load("family_name.txt", surNames);
+            load("res/male_names_given.txt", givenNamesMale);
+            load("res/female_names_given.txt", givenNamesFemale);
+            load("res/family_name.txt", surNames);
         } catch (IOException e) {
             throw new Error(e);
         }
@@ -46,10 +46,9 @@ public class NameGenerator {
         	last = surNames.get(s);
         }
         
-        System.out.println(first);
         actor.setForeName(first);
-        System.out.println(last);
-        actor.setClanName(last);              
+        actor.setClanName(last);  
+        
     }
 
     private void load(String name, List<String> col) throws IOException {
